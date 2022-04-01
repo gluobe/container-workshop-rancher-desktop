@@ -1,28 +1,28 @@
-# Lab 02 - Creating and sharing your own Docker images
+# Lab 02 - Creating and sharing your own container images
 
-In this lab we will focus on Docker images.  We will learn what they are, where
+In this lab we will focus on container images.  We will learn what they are, where
 to look for them and even explore the possibility of building our very own 
-Docker images.
+container images.
 
-Docker images are a series of read-only layers that are stacked on top of each
+Container images are a series of read-only layers that are stacked on top of each
 other to form a single unified view. The first image in the stack is called a
 *base image* and all the other layers are stacked on top of this layer. The
 diagram below shows the Ubuntu 15:04 image comprising 4 stacked image layers.
 
-![Docker image layers](images/lab-02-image-layers.jpg)
+![Image layers](images/lab-02-image-layers.jpg)
 
-When you make a change to a Docker images, for example, adding a new file to
+When you make a change to a container image, for example, adding a new file to
 the Ubuntu 15.04 image, you add a new layer on top of the underlying image
 stack. This change creates a new image layer containing the newly added file.
 Each image layer has its own universal unique identifier (UUID) and each
 successive image layer builds on top of the image layer below it.
 
-Containers (in the storage context) are a combination of a Docker image with a
+Containers (in the storage context) are a combination of a container image with a
 thin writable layer added to the top, known as the *container layer*.  The
 diagram below shows the differnt layers of a container running the Ubuntu 15.04
 image.
 
-![Docker container layers](images/lab-02-container-layers.jpg)
+![Container layers](images/lab-02-container-layers.jpg) 
 
 So the major difference between a container and an image is this writable layer.
 All changes made to the container that adds new or modifies existing data are
@@ -41,7 +41,7 @@ created and maintained by their respective companies.
 Issue the following commands and observe the output:
 
 ```
-docker search ubuntu
+podman search ubuntu
 ```
 
 When you execute this command you will search Docker Hub for all images that
@@ -64,26 +64,25 @@ registry.  Pulling an image means that you will download it to your local system
 Use the command below to pull the `ubuntu` image:
 
 ```
-docker image pull ubuntu 
+podman image pull ubuntu 
 ```
 
 Your output should be something like:
 
 ```
-latest: Pulling from library/ubuntu
-
-c63fb41c2213: Pull complete
-99fcaefe76ef: Pull complete
-5a4526e952f0: Pull complete
-1d073211c498: Pull complete
-Digest: sha256:8b1bffa54d8a58395bae61ec32f1a70fc82a939e4a7179e6227eb79e4c3c56f6
-Status: Downloaded newer image for ubuntu:latest
+Trying to pull docker.io/library/ubuntu:latest...
+Getting image source signatures
+Copying blob 4d32b49e2995 skipped: already exists  
+Copying config ff0fea8310 done  
+Writing manifest to image destination
+Storing signatures
+ff0fea8310f3957d9b1e6ba494f3e4b63cb348c76160c6c15578e65995ffaa87
 ```
 
 To see which images you have pulled/cached locally issue the command below:
 
 ```
-docker image ls
+podman images
 ```
 
 The output of the above command should look something like (pay special
@@ -102,17 +101,17 @@ In the above output you will also notice a `TAG` column, tags representspecific
 versions of the image, if no tag is specified the 'latest' tag is being used.
 
 ```
-docker image pull centos:6
-docker image pull centos:7
+podman image pull centos:6
+podman image pull centos:7
 ```
 
 > NOTE: the `latest` tag can often be confusing as there could be more recent
 > images with a different tags, it is best-practice to always use a specific tag
-> when working with Docker images
+> when working with container images
 
-## Task 3: building your own Docker images (manual)
+## Task 3: building your own container images (manual)
 
-Docker images are immutable by nature.  Most use-cases however require that you
+Container images are immutable by nature.  Most use-cases however require that you
 make changes to the original image (also known as `base image`).  Some examples
 are adding your own binaries/code or installinging dependencies into the image.
 
@@ -124,28 +123,28 @@ install an additional package into the container, it is important that we give
 the container a name as we will use the name as a reference in the next step:
 
 ```
-docker container run --name centos_elinks centos:7 yum -y install elinks
+podman run --name centos_elinks centos:7 yum -y install elinks
 ```
 
 2. Using the container name specified in the previous step we `commit` the
 change into a new image:
 
 ```
-docker container commit centos_elinks centos_elinks:7
+podman commit centos_elinks centos_elinks:7
 ```
 
 To verify that the elinks package has indeed been installed on the new image,
 simply run the following commands:
 
 ```
-docker container run -ti centos:7 elinks
-docker container run -ti centos_elinks:7 elinks
+podman run -ti centos:7 elinks
+podman run -ti centos_elinks:7 elinks
 ```
 
 The first container should fail with the following error message: 
 `executable file not found in $PATH`, the second container should work.
 
-## Task 4: building your own Docker images (automated)
+## Task 4: building your own container images (automated)
 
 Obviously the manual procedure from the previous task is not something you want
 to use when building a multitude of images.  What you would want instead is to
@@ -184,7 +183,7 @@ CMD ["elinks"]
 To build a new image using the above Dockerfile run the following command:
 
 ```
-docker image build -t centos_elinks_dockerfile:7 .
+podman build -t centos_elinks_dockerfile:7 .
 ```
 
 > NOTE: the `.` at the end of the command is very important, it tells the build
@@ -195,34 +194,34 @@ docker image build -t centos_elinks_dockerfile:7 .
 Test with:
 
 ```
-docker container run -ti centos_elinks_dockerfile:7
+podman run -ti centos_elinks_dockerfile:7
 ```
 
-## Task 5: pushing Docker images to a registry
+## Task 5: pushing container images to a registry
 
-A Docker registry is a repository where Docker images can be pulled from or
+A container registry is a repository where container images can be pulled from or
 pushed to. In concept they are the same as Git repositories, only instead of
-code you push/pull Docker images.
+code you push/pull container images.
 
-The most known Docker registry is the [Docker Hub](https://hub.docker.com),
-think of it as the GitHub of Docker images.  But course there are many other
-Docker repositories that you can use (GCR, ECR, Quay.io, Nexus, Artifactory,.. )
+The most known container registry is the [Docker Hub](https://hub.docker.com),
+think of it as the GitHub of container images.  But course there are many other
+container repositories that you can use (GCR, ECR, Quay.io, Nexus, Artifactory,.. )
 
-Just like with Git repositories, you can choose to make Docker images public or
-private in the Docker registry.  Public images can be pulled by everybody (no
+Just like with Git repositories, you can choose to make container images public or
+private in the container registry.  Public images can be pulled by everybody (no
 authentication/authorization required), private images require you to 
-authenticate and that you have the necessary permissions.  To push, most Docker
+authenticate and that you have the necessary permissions.  To push, most container
 registries require you to first authenticate.
 
 To authenticate to the Docker Hub run the following command:
 
 ```
-docker login
+podman login
 ```
 
 > NOTE: when you do not specifically specify a registry host, it will assume
-> that you want to login into the Docker Hub, should you want to login into
-> a different registry simply add it to the command `docker login quay.io`
+> that you want to login into the default configured registry, in our case that is Docker Hub as we configured it in lab 1, should you want to login into
+> a different registry simply add it to the command `podman login quay.io`
 
 When you want to push images to the Docker Hub you will need te prefix your
 image name with your Docker Hub username.  Again, this is similar to how
@@ -239,14 +238,14 @@ Before we can push an image, we need to re-tag (rename) the image we created in
 the previous task so it includes our username:
 
 ```
-docker tag centos_elinks_dockerfile:7 ${DOCKER_HUB_USERNAME}/centos_elinks_dockerfile:7
+podman tag centos_elinks_dockerfile:7 ${DOCKER_HUB_USERNAME}/centos_elinks_dockerfile:7
 ```
 
 > NOTE: when you do not specifically specify a registry host, it will push the 
 > image to the Docker Hub, should you want to push to a different registry,
-> simply add it `docker image tag centos_elinks_dockerfile:7 quay.io/${DOCKER_HUB_USERNAME}/centos_elinks_dockerfile:7`
+> simply add it `podman tag centos_elinks_dockerfile:7 quay.io/${DOCKER_HUB_USERNAME}/centos_elinks_dockerfile:7`
 
-You should see at least 2 images now when you run `docker image ls`, one
+You should see at least 2 images now when you run `podman images`, one
 `${DOCKER_HUB_USERNAME}/centos_elinks_dockerfile:7>` and one `centos_elinks_dockerfile:7`:
 
 ```
@@ -258,16 +257,21 @@ centos_elinks_dockerfile           7                   1e9c0ff2dc02        3 hou
 To push the image to the Docker Hub run the following command:
 
 ```
-docker image push ${DOCKER_HUB_USERNAME}/centos_elinks_dockerfile:7
+podman push --creds ${DOCKER_HUB_USERNAME} ${DOCKER_HUB_USERNAME}/centos_elinks_dockerfile:7
 ```
 
 If you should see something like the output below:
 
 ```
-The push refers to repository [docker.io/trescst/centos_elinks_dockerfile]
-4a92a20976a5: Layer already exists
-071d8bd76517: Layer already exists
-7: digest: sha256:06d67383803e113bda94e3fb782a9e81c41665a5b4ab514c8b9d6c6b88de9f54 size: 741
+Password: 
+---
+Getting image source signatures
+Copying blob 3b8893993587 done  
+Copying blob 174f56854903 done  
+Copying config 67380c94ec done  
+Writing manifest to image destination
+Storing signatures
+
 ```
 
 ## Task 6: sharing images
@@ -277,7 +281,7 @@ shared with your colleagues. So share your image name on Slack so your
 colleagues can test your image (and you can test their image).
 
 ```
-docker container run <COLLEAGUE_DOCKER_HUB_USERNAME>/centos_elinks_dockerfile:7
+podman run <COLLEAGUE_DOCKER_HUB_USERNAME>/centos_elinks_dockerfile:7
 ```
 
 ## Task 7: clean up
@@ -285,6 +289,6 @@ docker container run <COLLEAGUE_DOCKER_HUB_USERNAME>/centos_elinks_dockerfile:7
 To clean up run the following commands:
 
 ```
-docker system prune
+podman system prune
 unset DOCKER_HUB_USERNAME
 ```
