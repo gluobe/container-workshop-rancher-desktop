@@ -1,22 +1,7 @@
-# Lab 01 - Running your first Docker containers
+# Lab 01 - Running your first Podman containers
 
 In this first lab we will focus on running containers from already existing
 images.
-
-## Task 0: Login to Docker Hub
-
-Before starting with the exercises, ensure that you have logged into Docker Hub:
-
-```
-docker login
-
----
-
-Username: <YOUR_USERNAME>
-Password: 
-
-Login Succeeded
-```
 
 ## Task 1: Hello world!
 
@@ -24,7 +9,7 @@ To run your very first (one-off) container, simply execute the following command
 in your terminal:
 
 ```
-docker container run gluobe/hello-world
+podman run gluobe/hello-world
 ```
 
 When succesful you will be prompted with the following output (read the output
@@ -81,7 +66,7 @@ command was completed.  Often we want to interact with our container, to do so
 we will need to run an interactive container.
 
 To run an interactive container we need to add some additonal options and 
-parameters to the basic `docker container run` command that we previously used:
+parameters to the basic `podman run` command that we previously used:
 * `-ti` to make the container interactive
 * `bash` to  specify the command
 
@@ -89,7 +74,7 @@ Execute the command below to run an interactive Ubuntu container.  After the Ubu
 automatically change.
 
 ```
-docker container run -ti ubuntu bash
+podman run -ti ubuntu bash
 
 ---
 
@@ -166,14 +151,14 @@ macsteven:~ trescst$
 When we first started our interactive Ubuntu container it took some time before 
 we were inside of our container.  Most of this time was because we had to 
 download our Ubuntu image first.  But now that we have already downloaded this 
-image (it is in our Docker cache), we can start our container in a matter of 
+image (it is in our Podman cache), we can start our container in a matter of 
 seconds (often even less than a second).
 
 To see how little time it takes to start a new container, we are running the 
 same command as above to start a new interactive Ubuntu container:
 
 ```
-docker container run -ti ubuntu bash
+podman run -ti ubuntu bash
 ```
 
 Now you can exit the container again by typing `exit`.
@@ -190,7 +175,7 @@ service), to do this we will need to introduce a couple additional parameters:
 The following command will run an nginx container that will be accessible 
 through port 8080 of you laptop:
 ```
-docker container run -d --name nginx_container -p 8080:80 nginx
+podman run -d --name nginx_container -p 8080:80 nginx
 ```
 
 Once the container has started surf to http://localhost:8080 using a browser on
@@ -201,8 +186,8 @@ If nginx is working stop and remove the container again using the commands
 below:
 
 ```
-docker container stop nginx_container
-docker container rm nginx_container
+podman stop nginx_container
+podman rm nginx_container
 ```
 
 ## Task 4: working with volumes
@@ -212,39 +197,24 @@ container that you are running (for development purposes or for persistent
 state reasons for example).  For this we need to use volumes, and again it is
 simply a matter of adding an additional parameter:
 * `-v $(pwd):/usr/share/nginx/html` on MacOS and Linux or `-v ${PWD}:/usr/share/nginx/html` on Windows to mount the present working directory 
-(generated using the `$(pwd)` or `${PWD}` command) to the `/usr/share/nginx/html` directory 
-inside the container
+(generated using the `$(pwd)` or `${PWD}` command) to the `/usr/share/nginx/html` directory inside the container
 
-> NOTE: Docker requires the full path on the laptop, as this usually differs we 
+> NOTE: Podman requires the full path on the laptop, as this usually differs we 
 > are  using `$(pwd)` or `${PWD}` to dynamically determine the full path
 
 Create a new directory on your laptop, `cd` into the directory and create a new file in the directory `index.html` with some contents:
 
 ```
-Windows:
---------
-mkdir lab-01
-cd .\lab-01\
-notepad.exe index.html (Type "Docker Rocks!" and save the file)
-
-Linux/MacOS:
-------------
 mkdir lab-01
 cd lab-01
-vi index.html (Type "Docker Rocks!" and save the file)
+vi index.html (Type "Podman Rocks!" and save the file)
 ```
 
 Run the command below to mount the directory with the html files from your
 laptop into the container:
 
 ```
-Windows:
---------
-docker container run -d -p 8080:80 --name nginx_container_volume -v $(pwd):/usr/share/nginx/html nginx
-
-Linux/MacOS:
-------------
-docker container run -d -p 8080:80 --name nginx_container_volume -v ${PWD}:/usr/share/nginx/html nginx
+podman run -d -p 8080:80 --name nginx_container_volume -v ${PWD}:/usr/share/nginx/html nginx
 ```
 
 Once the container is running surf to http://localhost:8080, you should see the text 
@@ -257,8 +227,8 @@ If nginx is working with the volume stop and remove the container again using
 the commands below:
 
 ```
-docker container stop nginx_container_volume
-docker container rm nginx_container_volume
+podman stop nginx_container_volume
+podman rm nginx_container_volume
 ```
 
 ## Task 5: clean up
@@ -266,5 +236,5 @@ docker container rm nginx_container_volume
 To clean up run the following command:
 
 ```
-docker system prune
+podman system prune
 ```

@@ -1,14 +1,14 @@
 # Docker Workshop
 
-In this hands-on workshop you will learn the basics of Docker.
+In this hands-on workshop you will learn the basics of Podman.
 
 ## Labs
 
 * [Lab 00 - Prerequisites](lab-00)
-* [Lab 01 - Running your first Docker containers](lab-01)
-* [Lab 02 - Managing Docker images](lab-02)
+* [Lab 01 - Running your first Podman containers](lab-01)
+* [Lab 02 - Managing container images](lab-02)
 * [Lab 03 - Creating Dockerfiles](lab-03)
-* [Lab 04 - Additional Docker operations](lab-04)
+* [Lab 04 - Additional Podman operations](lab-04)
 
 ## People 
 

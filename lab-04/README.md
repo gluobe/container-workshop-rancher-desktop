@@ -1,6 +1,6 @@
 # Lab 04 - Dockerfile best-practices
 
-The goal when building your own Docker images is to keep them as small as
+The goal when building your own container images is to keep them as small as
 possible.  The main reason is of course that the smaller the image, the faster
 it can be distributed (pulled/pushed).  Another reason why it is important to
 keep an image as small/minimal as possible is that the fewer packages are
@@ -46,7 +46,7 @@ LABEL maintainer="steven.trescinski@gluo.be"
 LABEL licence="GPL"
 ```
 
-As seen in the previous lab you can use the `docker inspect` command to fetch
+As seen in the previous lab you can use the `podman inspect` command to fetch
 the labels of an image.
 
 ## Task 3: Running commands (RUN)
@@ -54,7 +54,7 @@ the labels of an image.
 If you want to run commands (to install packages for example) in the
 container/image we will need to use `RUN` in our Dockerfile.  Important to know
 is that every `RUN` statement in your Dockerfile will result in an additional
-layer in your Docker image.  So it is best practice to work as few `RUN`
+layer in your container image.  So it is best practice to work as few `RUN`
 statements as possible in your Dockerfile.
 
 What you do not want to do is the following:
@@ -74,7 +74,7 @@ RUN yum clean all
 Create a `Dockerfile` with the above content and build and image from it:
 
 ```
-docker image build -t centos_multiple_run:v1 .
+podman build -t centos_multiple_run:v1 .
 ```
 
 Now we will do the same, but this case with everything stringed into a single
@@ -94,7 +94,7 @@ RUN yum -y update && \
 Build a new image:
 
 ```
-docker image build -t centos_single_run:v1 .
+podman build -t centos_single_run:v1 .
 ```
 
 When we compare the two images we can see that there is more than 200MB
@@ -136,8 +136,8 @@ CMD ["cat", "/hello-world.txt"]
 Build two images from the above Dockerfile (we are using different variables):
 
 ```
-docker image build --build-arg hello_world_string='Hello world 1!' -t centos_hello_world_1 .
-docker image build --build-arg hello_world_string='Hello world 2!' -t centos_hello_world_2 .
+podman build --build-arg hello_world_string='Hello world 1!' -t centos_hello_world_1 .
+podman build --build-arg hello_world_string='Hello world 2!' -t centos_hello_world_2 .
 ```
 
 By simply switching the order of the two `RUN` lines and the `ARG` line we can
@@ -163,8 +163,8 @@ Build two new images from the new Dockerfile (we are again using different
 variables):
 
 ```
-docker image build --build-arg hello_world_string='Hello world 3!' -t centos_hello_world_3 .
-docker image build --build-arg hello_world_string='Hello world 4!' -t centos_hello_world_4 .
+podman build --build-arg hello_world_string='Hello world 3!' -t centos_hello_world_3 .
+podman build --build-arg hello_world_string='Hello world 4!' -t centos_hello_world_4 .
 ```
 
 Because we are making changes to the `RUN` statement referencing the
@@ -182,7 +182,7 @@ First of all we will run the default `nginx` image, we will use the `whoami`
 command to determine the user that the container runs as:
 
 ```
-docker container run nginx whoami
+podman run nginx whoami
 
 Unable to find image 'nginx:latest' locally
 latest: Pulling from library/nginx
@@ -198,7 +198,7 @@ You will see that the container runs as `root`.  You can also see this clearly
 when you run a `bash` shell inside the container:
 
 ```
-docker container run -ti nginx bash
+podman run -ti nginx bash
 
 root@1334bbf9f148:/#
 ```
@@ -222,7 +222,7 @@ changing the user to `nginx`.
 Make a `my_nginx` image from the above Dockerfile:
 
 ```
-docker image build -t my_nginx .
+podman build -t my_nginx .
 
 Sending build context to Docker daemon  2.048kB
 Step 1/2 : FROM nginx
@@ -239,7 +239,7 @@ Now run the `whoami` command on the newly created image to see which user the
 container is running as:
 
 ```
-docker container run my_nginx whoami
+podman run my_nginx whoami
 
 nginx
 ```
@@ -247,7 +247,7 @@ nginx
 Or run the command below to enter a shell inside the container:
 
 ```
-docker container run -ti my_nginx bash
+podman run -ti my_nginx bash
 
 nginx@5c42d03e77fd:/$
 ```
@@ -267,7 +267,7 @@ USER root
 Build a new image an check which user this container will be running as:
 
 ```
-docker image build -t my_root_nginx .
+podman build -t my_root_nginx .
 
 Sending build context to Docker daemon  2.048kB
 Step 1/3 : FROM nginx
@@ -286,7 +286,7 @@ Successfully tagged my_root_nginx:latest
 Verify that the container will be running as the `root` user:
 
 ```
-docker container run my_root_nginx whoami
+podman run my_root_nginx whoami
 root
 ```
 
@@ -309,7 +309,7 @@ USER nginx
 ## Task 6: ENTRYPOINT vs. CMD  
 
 In a nutshell, `CMD` sets default command and/or parameters, which can be 
-overwritten from the command line when docker container runs.
+overwritten from the command line when podman runs.
 
 `ENTRYPOINT` configures a container that will run as an executable.
 
@@ -325,7 +325,7 @@ ENTRYPOINT ["/bin/echo" , "Hello World!"]
 Build the `hello-world` image with this `Dockerfile`.
 
 ```
-docker image build -t hello-world .
+podman build -t hello-world .
 
 Sending build context to Docker daemon  2.048kB
 Step 1/2 : FROM nginx
@@ -343,11 +343,11 @@ to overwrite the initial `command` the container is going to do. It is possible
 to add more arguments to this command though.
 
 ```
-docker container run -ti hello-world
+podman run -ti hello-world
 
 Hello World!
 
-docker container run -ti hello-world my argument
+podman run -ti hello-world my argument
 
 Hello World! my argument
 ```
@@ -357,13 +357,13 @@ overwriting the `echo` command but you are just adding the `bash` string to the
 `echo` command.
 
 ```
-docker container run -ti hello-world bash
+podman run -ti hello-world bash
 
 Hello World! bash
 ```
 
 > NOTE: there is a way to override the entrypoint using the `--entrypoint` 
-> argument like so: `docker container run --entrypoint "bash" -ti hello-world`, this 
+> argument like so: `podman run --entrypoint "bash" -ti hello-world`, this 
 > command allows you to override the default entrypoint and replace it with the 
 > `bash` command
 
@@ -379,7 +379,7 @@ CMD ["/bin/echo" , "Hello World!"]
 Build the image with the edited `Dockerfile`.
 
 ```
-docker image build -t hello-world .
+podman build -t hello-world .
 
 Sending build context to Docker daemon  2.048kB
 Step 1/2 : FROM nginx
@@ -395,7 +395,7 @@ If you will run the image now you will see that you get the same output as the
 `ENTRYPOINT` line. This is because we are currently not overwriting the command. 
 
 ```
-docker container run -ti hello-world
+podman run -ti hello-world
 
 Hello World!
 ```
@@ -404,7 +404,7 @@ If we are going to add `bash` to the `run` command you will see that we will
 `exec` into the container, thus overwrite the initial command.
 
 ```
-docker container run -ti hello-world bash
+podman run -ti hello-world bash
 
 root@fa9a3a2a62f1:/#
 ```
@@ -414,5 +414,5 @@ root@fa9a3a2a62f1:/#
 To clean up everything run the following commands:
 
 ```
-docker system prune
+podman system prune
 ```

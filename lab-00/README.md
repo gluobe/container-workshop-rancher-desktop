@@ -1,53 +1,49 @@
-# Lab 00 - Prerequisites
+## Lab 00 - Prerequisites
 
 A couple of requirements before we can start with the actual labs.
 
-## Task 1: Docker Hub account
+## Task 0: Docker Hub account
 
 If you do not yet have a Docker Hub account, please sign up for a free one at:
 
 https://hub.docker.com/signup
 
-## Task 2: Install Rancher Desktop
+## Task 1: Install Podman
 
-Folllow the the Rancher Desktop installation instruction from the following website:
+Folllow the Podman installation instruction from the following website:
 
-https://docs.rancherdesktop.io/getting-started/installation
+https://podman.io/getting-started/installation 
 
-Validate that Docker has been installed succesfully by issuesing the command below and validating your output looks similar:
+Validate that Podman has been installed succesfully by issuesing the command below and validating your output looks similar:
 
 ```
-C:\Users\Steven Trescinski\Documents > docker version
+ ~/Documents/git/gluo> podman version
+Client:       Podman Engine
+Version:      4.0.1
+API Version:  4.0.1
+Go Version:   go1.17.7
+Git Commit:   c8b9a2e3ec3630e9172499e15205c11b823c8107
+Built:        Thu Feb 24 12:12:50 2022
+OS/Arch:      linux/amd64
+      
+```
 
----
+## Task 2: Configure Docker Hub registry
 
-You should see output similar to the output below:
-Client:
- Version:           20.10.9
- API version:       1.41
- Go version:        go1.16.8
- Git commit:        c2ea9bc
- Built:             Thu Nov 18 21:19:50 2021
- OS/Arch:           windows/amd64
- Context:           default
- Experimental:      true
+Before starting with the exercises, ensure that you have configured the Docker Hub registry. 
+To configure the registry, the file ```/etc/containers/registries.conf``` needs to have the following two lines configured and uncommented:
 
-Server:
- Engine:
-  Version:          20.10.11
-  API version:      1.41 (minimum version 1.12)
-  Go version:       go1.17.3
-  Git commit:       847da184ad5048b26f5bdf9d53d070f731b43180
-  Built:            Thu Nov 19 03:06:35 2021
-  OS/Arch:          linux/amd64
-  Experimental:     false
- containerd:
-  Version:          1.5.9
-  GitCommit:        894b81a4b802e4eb2a91d1ce216b8817763c29fb
- runc:
-  Version:          1.0.2
-  GitCommit:        425e105d5a03fabd737a126ad93d62a9eeede87f
- docker-init:
-  Version:          0.19.0
-  GitCommit:        
+```
+[registries.search]
+registries = ['docker.io']
+```
+
+## Task 3: Login to Docker Hub
+```
+podman login docker.io
+
+Username: yourusername
+Password:
+
+Login Succeeded!
 ```

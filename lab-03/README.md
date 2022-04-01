@@ -7,16 +7,16 @@ In this lab we will have a look at some additional Docker operations commands.
 Start a couple of containers:
 
 ```
-docker container run -d --name nginx_1 -p 8080:80 nginx
-docker container run -d --name nginx_2 -p 8081:80 nginx
-docker container run --name triangle_small gluobe/draw-triangle:v1 25
-docker container run --name triangle_large gluobe/draw-triangle:v1 50
+podman run -d --name nginx_1 -p 8080:80 nginx
+podman run -d --name nginx_2 -p 8081:80 nginx
+podman run --name triangle_small gluobe/draw-triangle:v1 25
+podman run --name triangle_large gluobe/draw-triangle:v1 50
 ```
 
 To see which containers are currently running use the following command:
 
 ```
-docker container ls
+podman ps
 ```
 
 You should see the two nginx containers running:
@@ -28,12 +28,12 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 ```
 
 You might wonder where you can see the containers that were started from the
-`gluobe/draw-triangle:v1` image.  The `docker container ls` command only shows the
+`gluobe/draw-triangle:v1` image.  The `podman ps` command only shows the
 containers that are actively running.  To see containers that are stopped or
 exited you will need to add the `-a` flag to the command:
 
 ```
-docker container ls -a
+podman ps -a
 ```
 
 The output should look something like:
@@ -59,24 +59,24 @@ Before we can look at the logs, we first need to generate some logs of course,
 so in your browser surf to both http://localhost:8080 and http://localhost:8081
 and hit refresh a couple of time to generate some access logs.
 
-To see the logs we are using the `docker logs` command, we only need to specify
+To see the logs we are using the `podman logs` command, we only need to specify
 the container name or ID, for example:
 
 ```
-docker container logs nginx_2
+podman logs nginx_2
 ```
 
 Instead of using the container name you could also use the container ID, so in
 the above example this would be:
 
 ```
-docker container logs 3357b8b9b24c
+podman logs 3357b8b9b24c
 ```
 
 Or we could use the short ID:
 
 ```
-docker container logs 33
+podman logs 33
 ```
 
 Important to note is that you cannot only see logs of running containers, you
@@ -85,29 +85,29 @@ useful if you are troubleshooting why a specific container is not running
 anymore:
 
 ```
-docker container logs triangle_large
+podman logs triangle_large
 ```
 
 ## Task 3: Stopping and starting containers
 
-To stop a running container we can use the `docker container stop` command, again followed
+To stop a running container we can use the `podman stop` command, again followed
 by its name or ID:
 
 ```
-docker container stop nginx_1
+podman stop nginx_1
 ```
 
-When we do a `docker container ls` again we see that we only have one container running:
+When we do a `podman ps` again we see that we only have one container running:
 
 ```
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
 3357b8b9b24c        nginx               "nginx -g 'daemon of…"   28 minutes ago      Up 28 minutes       0.0.0.0:8081->80/tcp   nginx_2
 ```
 
-To start the container again you can use the `docker container start` command:
+To start the container again you can use the `podman start` command:
 
 ```
-docker start nginx_1
+podman start nginx_1
 ```
 
 After issue that command you should see two containers running again, pay
@@ -129,20 +129,20 @@ is use.  Let us similate this issue.
 Stop the `nginx_1` container:
 
 ```
-docker container stop nginx_1
+podman stop nginx_1
 ```
 
 Next, we try to relaunch that container:
 
 ```
-docker container run -d --name nginx_1 -p 8080:80 nginx
+podman run -d --name nginx_1 -p 8080:80 nginx
 ```
 
 We are prompted with the following error message:
 
 ```
-docker: Error response from daemon: Conflict. The container name "/nginx_1" is already in use by container "0902eab457a2881a12ed5149799af85e515460a42720262e5e15998e97d79263". You have to remove (or rename) that container to be able to reuse that name.
-See 'docker container run --help'.
+Error response from daemon: Conflict. The container name "/nginx_1" is already in use by container "0902eab457a2881a12ed5149799af85e515460a42720262e5e15998e97d79263". You have to remove (or rename) that container to be able to reuse that name.
+See 'podman run --help'.
 ```
 
 This is because the stopped container still exists under that exact name.  The
@@ -150,19 +150,19 @@ sollution to this is to not start a brand new container but simply restart the
 existing exited container:
 
 ```
-docker container start nginx_1
+podman start nginx_1
 ```
 
 ## Task 4: Accessing a running container
 
-Docker containers are immutable by nature, but nevertheless it is sometimes
+Containers are immutable by nature, but nevertheless it is sometimes
 usefull to access a running container (this is similar to SSH'ing into a running
 virtual machine).
 
 To access the `nginx_1` container we use the following command:
 
 ```
-docker container exec -ti nginx_1 bash
+podman exec -ti nginx_1 bash
 ```
 
 Notice that your prompt will change when you execute the above command, this
@@ -173,7 +173,7 @@ container as you will loosse these as soon as the container is terminated or
 restarted.
 
 ```
-MacSteven:~ trescst$ docker exec -ti nginx_1 bash
+MacSteven:~ trescst$ podman exec -ti nginx_1 bash
 root@0902eab457a2:/#
 ```
 
@@ -183,15 +183,14 @@ have exited your container when your prompt is back to normal).
 ## Task 5: Inspecting containers and images
 
 Sometimes you would want some additional detailed information about a container
-and/or image.  For this the `docker container inspect` and `docker image inspect` commmand can be used.
+and/or image.  For this the `podman inspect` commmand can be used.
 
 The output is pretty lengthy but contains a lot of usefull information about
 either the container of the image.
 
 ```
-docker container inspect nginx_1
-
-MacSteven:~ trescst$ docker inspect nginx_1
+podman inspect nginx_1
+---
 [
     {
         "Id": "0902eab457a2881a12ed5149799af85e515460a42720262e5e15998e97d79263",
@@ -217,7 +216,7 @@ MacSteven:~ trescst$ docker inspect nginx_1
 
 <...redacted..>
 
-            "SandboxKey": "/var/run/docker/netns/80fd8c9a5fbf",
+            "SandboxKey": "/run/user/1000/netns/netns/80fd8c9a5fbf",
             "SecondaryIPAddresses": null,
             "SecondaryIPv6Addresses": null,
             "EndpointID": "5d7841039488450bb6af0b6646b8d4d5e3d488769b07548929df79624b3f2ce9",
@@ -253,7 +252,8 @@ MacSteven:~ trescst$ docker inspect nginx_1
 You can do the same for an image:
 
 ```
-MacSteven:~ trescst$ docker image inspect gluobe/draw-triangle:v1
+podman image inspect nginx
+---
 [
     {
         "Id": "sha256:d6be02065b0de8aa71b5d9e96e3861745c3ec3e3229f4ef774c9cb57ca2af76b",
@@ -306,10 +306,10 @@ MacSteven:~ trescst$ docker image inspect gluobe/draw-triangle:v1
         "VirtualSize": 9559052,
         "GraphDriver": {
             "Data": {
-                "LowerDir": "/var/lib/docker/overlay2/50420f58ef88469a9f3c3213b988ae3893f24b40227effe923f4c868e7ad8564/diff:/var/lib/docker/overlay2/0a3cb54017c2bfbba2b89c3badecfd18bd2e2ae29f06e954fcc73ebf62eb4bf2/diff",
-                "MergedDir": "/var/lib/docker/overlay2/9457b5820801d34c7395e3514298349c8193d425a5aac7e94762de2b66011369/merged",
-                "UpperDir": "/var/lib/docker/overlay2/9457b5820801d34c7395e3514298349c8193d425a5aac7e94762de2b66011369/diff",
-                "WorkDir": "/var/lib/docker/overlay2/9457b5820801d34c7395e3514298349c8193d425a5aac7e94762de2b66011369/work"
+                "LowerDir": "/home/$CURRENT_USER/.local/share/containers/storage/overlay/50420f58ef88469a9f3c3213b988ae3893f24b40227effe923f4c868e7ad8564/diff:/home/$CURRENT_USER/.local/share/containers/storage/overlay/0a3cb54017c2bfbba2b89c3badecfd18bd2e2ae29f06e954fcc73ebf62eb4bf2/diff",
+                "MergedDir": "/home/$CURRENT_USER/.local/share/containers/storage/overlay/9457b5820801d34c7395e3514298349c8193d425a5aac7e94762de2b66011369/merged",
+                "UpperDir": "/home/$CURRENT_USER/.local/share/containers/storage/overlay/9457b5820801d34c7395e3514298349c8193d425a5aac7e94762de2b66011369/diff",
+                "WorkDir": "/home/$CURRENT_USER/.local/share/containers/storage/overlay/9457b5820801d34c7395e3514298349c8193d425a5aac7e94762de2b66011369/work"
             },
             "Name": "overlay2"
         },
@@ -334,13 +334,13 @@ container or the image.  For this we can use the `-f` option.
 Example to get the IP address of a container:
 
 ```
-docker container inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' nginx_1
+podman inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' nginx_1
 ```
 
 Example to get the maintainer of an image:
 
 ```
-docker images inspect -f '{{ index .Config.Labels "maintainer"}}' gluobe/draw-triangle:v1
+podman image inspect -f '{{ index .Config.Labels "maintainer"}}' gluobe/draw-triangle:v1
 ```
 
 ## Task 5: Deleting containers and images
@@ -349,34 +349,29 @@ So far we have focussed on creating, stopping and starting containers.  But we
 obviously sometimes need to get rid of some containers and images.
 
 For this we have a couple of options, to manually delete containers and images
-we have the `docker container rm` and `docker image rm` commands.
+we have the `podman rm` and `podman image rm` commands.
 
 One important thing to note is that before you can delete an image, you will
 first need to delete all the running/terminated containers that are using that
 image as Docker will prevent you from deleting images that are still in use, for
-example `docker image rm gluobe/draw-triangle:v1` will result in the following error:
+example `podman image rm gluobe/draw-triangle:v1` will result in the following error:
 
 ```
-Error response from daemon: conflict: unable to remove repository reference "gluobe/draw-triangle:v1" (must force) - container 323a2956f124 is using its referenced image d6be02065b0d
+Error: Image used by 87b4b1d97d23cee8a0ef8180d4d01df06239873238073a76013d4c3bc21b96b3: image is in use by a container
 ```
 
 So we first need to remove the containers that are referencing this image:
 
 ```
-docker container rm triangle_small
-docker container rm triangle_large
+podman rm triangle_small
+podman rm triangle_large
 ```
 
-After that the `docker image rm gluobe/draw-triangle:v1` command should work:
+After that the `podman image rm gluobe/draw-triangle:v1` command should work:
 
 ```
-Untagged: gluobe/draw-triangle:v1
-Deleted: sha256:d6be02065b0de8aa71b5d9e96e3861745c3ec3e3229f4ef774c9cb57ca2af76b
-Deleted: sha256:3d7129358ffe54353dde861c2c8c23e7516c63bd31601b140eafe87e64dff3b5
-Deleted: sha256:ddd57edc2d2c14ebb854b88978e582a63ee41d640a4919c4f989841abb340c05
-Deleted: sha256:cf9160c3092001e8d98a448fe1317bac5077d6df7215feec3e6dcb461c9a6202
-Deleted: sha256:3d885ba001946853c575c3e8480e84ac2c5b2d60100bf4976bd3af7682cab179
-Deleted: sha256:a406c9b0c676c29711c81d22a44b951e298744342d22462b6c8aab50f0b842f8
+Untagged: docker.io/gluobe/draw-triangle:v1
+Deleted: 26b13e8a4c2273d9689f735549a35a400ac6271661dc3a0f679be9c2ebbe7995
 ```
 
 ## Task 6: clean up
@@ -386,5 +381,5 @@ containers) it could happen that the filesystem will run out of space.  To clean
 up all unused containers/images you can use the following command:
 
 ```
-docker system prune
+podman system prune
 ```
